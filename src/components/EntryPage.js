@@ -10,6 +10,29 @@ const EntryPage = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Function to convert DD-MM-YYYY to YYYY-MM-DD
+  const convertDateFormat = (dateString) => {
+    // Check if it's already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    
+    // Convert from DD-MM-YYYY to YYYY-MM-DD
+    if (/^\d{2}-\d{2}-\d{4}$/.test(dateString)) {
+      const parts = dateString.split('-');
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    
+    return dateString; // Return as is if format doesn't match
+  };
+
+  // Function to validate date format
+  const isValidDate = (dateString) => {
+    const convertedDate = convertDateFormat(dateString);
+    const date = new Date(convertedDate);
+    return date instanceof Date && !isNaN(date) && date.toISOString().split('T')[0] === convertedDate;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -21,6 +44,12 @@ const EntryPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate date format
+    if (!isValidDate(formData.date)) {
+      setMessage({ type: 'error', text: 'Please enter a valid date in DD-MM-YYYY format (e.g., 30-08-2025)' });
+      return;
+    }
+    
     if (!formData.goldRate || isNaN(formData.goldRate)) {
       setMessage({ type: 'error', text: 'Please enter a valid gold rate' });
       return;
@@ -30,14 +59,17 @@ const EntryPage = () => {
     setMessage('');
 
     try {
+      // Convert date to YYYY-MM-DD format for database
+      const convertedDate = convertDateFormat(formData.date);
+      
       const goldData = {
-        date: formData.date,
+        date: convertedDate,
         goldRate: parseFloat(formData.goldRate),
         timestamp: new Date().toISOString()
       };
 
       // Create a unique key using the date
-      const dateKey = formData.date.replace(/-/g, '');
+      const dateKey = convertedDate.replace(/-/g, '');
       const goldRef = ref(database, `goldRates/${dateKey}`);
       
       await set(goldRef, goldData);
@@ -66,12 +98,13 @@ const EntryPage = () => {
               Date
             </label>
             <input
-              type="date"
+              type="text"
               id="date"
               name="date"
               value={formData.date}
               onChange={handleInputChange}
               className="form-input"
+              placeholder="DD-MM-YYYY (e.g., 30-08-2025)"
               required
             />
           </div>
@@ -116,7 +149,7 @@ const EntryPage = () => {
           📊 Instructions
         </h3>
         <ul style={{ lineHeight: '1.6', color: '#ffffff' }}>
-          <li>Select the date for which you want to add the gold rate</li>
+          <li>Enter the date in DD-MM-YYYY format (e.g., 30-08-2025) for which you want to add the gold rate</li>
           <li>Enter the gold rate per gram in Indian Rupees (₹)</li>
           <li>Click "Save Gold Rate" to store the data in the database</li>
           <li>Navigate to "View Trends" to see the graphical representation</li>
