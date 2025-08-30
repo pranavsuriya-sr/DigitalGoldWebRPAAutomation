@@ -57,8 +57,8 @@ A modern web application for tracking and visualizing digital gold price trends 
 
 The application is already configured with the provided Firebase credentials:
 - **Project ID**: appdevjaiproj
-- **Database URL**: https://appdevjaiproj-default-rtdb.firebaseio.com
-- **API Key**: AIzaSyCfRkYeJQYNVKNZxMVtNV3Nz0VHymtzaPw
+- **Database URL**: *
+- **API Key**: *
 
 The Firebase configuration is located in `src/firebase.js`.
 
