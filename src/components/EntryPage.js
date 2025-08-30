@@ -50,8 +50,10 @@ const EntryPage = () => {
       return;
     }
     
-    if (!formData.goldRate || isNaN(formData.goldRate)) {
-      setMessage({ type: 'error', text: 'Please enter a valid gold rate' });
+    // Validate gold rate - check if it's a valid number
+    const goldRateValue = parseFloat(formData.goldRate);
+    if (!formData.goldRate || isNaN(goldRateValue) || goldRateValue <= 0) {
+      setMessage({ type: 'error', text: 'Please enter a valid gold rate (must be a positive number)' });
       return;
     }
 
@@ -64,7 +66,7 @@ const EntryPage = () => {
       
       const goldData = {
         date: convertedDate,
-        goldRate: parseFloat(formData.goldRate),
+        goldRate: goldRateValue,
         timestamp: new Date().toISOString()
       };
 
@@ -114,15 +116,13 @@ const EntryPage = () => {
               Gold Rate (per gram in ₹)
             </label>
             <input
-              type="number"
+              type="text"
               id="goldRate"
               name="goldRate"
               value={formData.goldRate}
               onChange={handleInputChange}
               className="form-input"
-              placeholder="Enter gold rate"
-              step="0.01"
-              min="0"
+              placeholder="Enter gold rate (e.g., 10995.51)"
               required
             />
           </div>
